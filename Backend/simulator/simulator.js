@@ -3,14 +3,6 @@ const { getScenarioById, getRandomScenario, scenarios } = require('./scenarios')
 
 const TICK_MS = Number(process.env.SIMULATOR_TICK_MS) || 1800;
 
-/**
- * Starts one simulated call: creates the Call document immediately (so it
- * shows up in the queue right away), then plays its scripted messages one
- * at a time on a timer, broadcasting each change over Socket.io.
- *
- * Returns the created Call document (transcript will still be empty at
- * this point — messages arrive asynchronously on the timer).
- */
 async function startSimulatedCall(io, scenarioId) {
   const scenario = scenarioId ? getScenarioById(scenarioId) : getRandomScenario();
   if (!scenario) throw new Error(`Unknown scenario id: ${scenarioId}`);
@@ -38,9 +30,6 @@ function playScript(io, callId, script, stepIndex) {
       const step = script[stepIndex];
       const call = await Call.findById(callId);
 
-      // The call may have been taken over or resolved by an operator
-      // mid-script — stop the scripted playback rather than fight the
-      // human's actions.
       if (!call || call.status === 'human_active' || call.status === 'resolved') {
         return;
       }
@@ -62,11 +51,6 @@ function playScript(io, callId, script, stepIndex) {
   }, TICK_MS);
 }
 
-/**
- * Convenience helper used at server boot to stagger a handful of demo
- * calls so the dashboard isn't empty on first load. Not required — calls
- * can also be started on demand via POST /api/simulator/run.
- */
 function seedDemoCalls(io, count = 3) {
   const chosen = scenarios.slice(0, count);
   chosen.forEach((scenario, i) => {
