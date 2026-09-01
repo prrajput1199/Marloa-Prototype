@@ -5,7 +5,7 @@ function formatTime(dateStr) {
   return new Date(dateStr).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' });
 }
 
-export default function TranscriptView({ call, onTakeover, onSendMessage, onResolve }) {
+export default function TranscriptView({ call, onTakeover, onSendMessage, onResolve, onBack }) {
   const [draft, setDraft] = useState('');
   const [outcomeType, setOutcomeType] = useState('enquiry');
   const [outcomeNote, setOutcomeNote] = useState('');
@@ -55,9 +55,14 @@ export default function TranscriptView({ call, onTakeover, onSendMessage, onReso
   return (
     <div className="pane-detail">
       <div className="detail-header">
-        <div>
-          <p className="detail-title">{call.callerName}</p>
-          <p className="detail-topic">{call.topic}</p>
+        <div className="detail-header-left">
+          <button className="btn subtle back-btn" onClick={onBack} aria-label="Back to queue">
+            ← Back
+          </button>
+          <div>
+            <p className="detail-title">{call.callerName}</p>
+            <p className="detail-topic">{call.topic}</p>
+          </div>
         </div>
         <div className="detail-actions">
           <StatusBadge status={call.status} />
